@@ -1,0 +1,19 @@
+sudo: false
+language: go
+git:
+    depth: 1
+install: go get -v github.com/gohugoio/hugo
+script: hugo
+deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $f524201a1b257b7e510e2d7750e1b29c0783e5dc
+    on:
+        branch: master
+    local_dir: public
+    repo: maplness/maplness.github.io
+    fqdn: shuai0034.top
+    target_branch: master
+    email: zhus34@163.com
+    name: maplness
+
