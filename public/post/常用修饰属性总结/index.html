@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>常用修饰属性总结 - 随便写写</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Scott" /><meta name="description" content="一、assign(ARC/ MRC) assign在ARC 、MRC中都是存在的 assign一般用来修饰基本数据类型 assign也可用来修饰对象，但是对" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.62.0 with theme even" />
+
+
+<link rel="canonical" href="https://maplness.github.io/post/%E5%B8%B8%E7%94%A8%E4%BF%AE%E9%A5%B0%E5%B1%9E%E6%80%A7%E6%80%BB%E7%BB%93/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+<link href="/dist/even.c2a46f00.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="常用修饰属性总结" />
+<meta property="og:description" content="一、assign(ARC/ MRC) assign在ARC 、MRC中都是存在的 assign一般用来修饰基本数据类型 assign也可用来修饰对象，但是对" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://maplness.github.io/post/%E5%B8%B8%E7%94%A8%E4%BF%AE%E9%A5%B0%E5%B1%9E%E6%80%A7%E6%80%BB%E7%BB%93/" />
+<meta property="article:published_time" content="2020-08-14T21:42:12+08:00" />
+<meta property="article:modified_time" content="2020-08-14T21:42:12+08:00" />
+<meta itemprop="name" content="常用修饰属性总结">
+<meta itemprop="description" content="一、assign(ARC/ MRC) assign在ARC 、MRC中都是存在的 assign一般用来修饰基本数据类型 assign也可用来修饰对象，但是对">
+<meta itemprop="datePublished" content="2020-08-14T21:42:12&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-14T21:42:12&#43;08:00" />
+<meta itemprop="wordCount" content="647">
+
+
+
+<meta itemprop="keywords" content="OC," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="常用修饰属性总结"/>
+<meta name="twitter:description" content="一、assign(ARC/ MRC) assign在ARC 、MRC中都是存在的 assign一般用来修饰基本数据类型 assign也可用来修饰对象，但是对"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Scott</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/post/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Scott</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">常用修饰属性总结</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-14 </span>
+        <div class="post-category">
+            <a href="/categories/oc/"> OC </a>
+            </div>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title"></h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#assignarc-mrc">一、assign(ARC/ MRC)</a></li>
+        <li><a href="#weakarc">二、weak（ARC）</a></li>
+        <li><a href="#-strongarc">三、 strong（ARC）</a></li>
+        <li><a href="#--copyarcmrc">四 、 copy（ARC/MRC）</a></li>
+        <li><a href="#atomicnonatomic">五、原子属性（atomic）和非原子属性（nonatomic）</a></li>
+        <li><a href="#readonly--readwrite">六、readOnly 、 readWrite</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h3 id="assignarc-mrc">一、assign(ARC/ MRC)</h3>
+<ol>
+<li>assign在ARC 、MRC中都是存在的</li>
+<li>assign一般用来修饰基本数据类型</li>
+<li>assign也可用来修饰对象，但是对象的引用计数不会+1</li>
+<li>assign如果用来修饰对象属性， 当对象销毁后指针不会指向nil，会出现野指针错误(与weak的区别)</li>
+<li>在MRC用assign来修饰代理，是为了防止循环引用</li>
+</ol>
+<h3 id="weakarc">二、weak（ARC）</h3>
+<ol>
+<li>弱指针是针对对象的修饰词，就是说它不能修饰基本数据类型</li>
+<li>weak修饰的对象，引用计数不会+1，即直接赋值</li>
+<li>弱引用是为了打破循环引而生的</li>
+<li>它所指向的对象如果被销毁，它会指向nil，而nil不会报野指针错误</li>
+</ol>
+<h3 id="-strongarc">三、 strong（ARC）</h3>
+<ol>
+<li>直接赋值，对象引用计数+1</li>
+<li>功能直接等价于MRC的retain</li>
+</ol>
+<h3 id="--copyarcmrc">四 、 copy（ARC/MRC）</h3>
+<ol>
+<li>copy在MRC是release旧对象（旧对象引用计数-1），copy新对象（新对象引用计数+1），然后指向新对象</li>
+<li>在ARC时copy新对象（新对象引用计数+1），然后指向新对象</li>
+</ol>
+<h3 id="atomicnonatomic">五、原子属性（atomic）和非原子属性（nonatomic）</h3>
+<h5 id="nonatomic">nonatomic：</h5>
+<ol>
+<li>不对set方法加锁(@synchronizied), 互斥锁是利用线程同步实现的，意在保证同一时间只有一个线程调用set方法。</li>
+<li>性能好</li>
+<li>线程不安全</li>
+</ol>
+<h5 id="atomic">atomic:</h5>
+<ol>
+<li>对生成的set方法加锁@synchronized</li>
+<li>需要消耗系统资源</li>
+</ol>
+<h3 id="readonly--readwrite">六、readOnly 、 readWrite</h3>
+<h5 id="readonly">readOnly:</h5>
+<ol>
+<li>只读属性，意味着只合成gettter方法</li>
+<li>不想把暴露的属性被别人替换，可以使用readOnly修饰</li>
+</ol>
+<h5 id="readwrite">readWrite:</h5>
+<ol>
+<li>生成getter 和 setter方法</li>
+<li>默认为readwrite</li>
+</ol>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title"></span>
+    <span class="item-content">Scott</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title"></span>
+    <span class="item-content">
+        2020-08-14
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/oc/">OC</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/oc%E4%B8%AD%E7%9A%84%E9%94%81/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">OC中的锁</span>
+            <span class="prev-text nav-mobile"></span>
+          </a>
+        <a class="next" href="/post/kvokvcdetail/">
+            <span class="next-text nav-default">KVOKVCDetail</span>
+            <span class="next-text nav-mobile"></span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:your@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="http://localhost:1313" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="http://localhost:1313" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="http://localhost:1313" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="http://localhost:1313" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="http://localhost:1313" class="iconfont icon-google" title="google"></a>
+      <a href="http://localhost:1313" class="iconfont icon-github" title="github"></a>
+      <a href="http://localhost:1313" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="http://localhost:1313" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="http://localhost:1313" class="iconfont icon-douban" title="douban"></a>
+      <a href="http://localhost:1313" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="http://localhost:1313" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="http://localhost:1313" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="http://localhost:1313" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="http://localhost:1313" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://maplness.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    %!(EXTRA string=<a class="hexo-link" href="https://gohugo.io">Hugo</a>)
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+     - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2017 - 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">Scott</span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="/dist/even.26188efa.min.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

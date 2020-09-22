@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>多线程 on 随便写写</title>
+    <link>https://maplness.github.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/</link>
+    <description>Recent content in 多线程 on 随便写写</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 15 Aug 2020 13:31:09 +0800</lastBuildDate>
+    
+	<atom:link href="https://maplness.github.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>OC中的锁</title>
+      <link>https://maplness.github.io/post/oc%E4%B8%AD%E7%9A%84%E9%94%81/</link>
+      <pubDate>Sat, 15 Aug 2020 13:31:09 +0800</pubDate>
+      
+      <guid>https://maplness.github.io/post/oc%E4%B8%AD%E7%9A%84%E9%94%81/</guid>
+      <description>OC中用不同的方式实现锁 原文链接 http://www.tanhao.me/pieces/616.html/ 今天一起来探讨一下objective-c中几种不同方式实现的锁，在这之前我们先构建一个测试用的类，假想它是</description>
+    </item>
+    
+  </channel>
+</rss>

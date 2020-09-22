@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>面试总结 on 随便写写</title>
+    <link>https://maplness.github.io/categories/%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/</link>
+    <description>Recent content in 面试总结 on 随便写写</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Fri, 14 Aug 2020 20:01:44 +0800</lastBuildDate>
+    
+	<atom:link href="https://maplness.github.io/categories/%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>KVOKVCDetail</title>
+      <link>https://maplness.github.io/post/kvokvcdetail/</link>
+      <pubDate>Fri, 14 Aug 2020 20:01:44 +0800</pubDate>
+      
+      <guid>https://maplness.github.io/post/kvokvcdetail/</guid>
+      <description>KVO实现原理 1.KVO的简介 KVO的全称是Key-Value Observing , 可以用于监听某个对象属性值的变化 要监听Person中的age属性， 我们就创</description>
+    </item>
+    
+  </channel>
+</rss>

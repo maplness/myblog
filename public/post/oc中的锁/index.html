@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>OC中的锁 - 随便写写</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Scott" /><meta name="description" content="OC中用不同的方式实现锁 原文链接 http://www.tanhao.me/pieces/616.html/ 今天一起来探讨一下objective-c中几种不同方式实现的锁，在这之前我们先构建一个测试用的类，假想它是" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.62.0 with theme even" />
+
+
+<link rel="canonical" href="https://maplness.github.io/post/oc%E4%B8%AD%E7%9A%84%E9%94%81/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+<link href="/dist/even.c2a46f00.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="OC中的锁" />
+<meta property="og:description" content="OC中用不同的方式实现锁 原文链接 http://www.tanhao.me/pieces/616.html/ 今天一起来探讨一下objective-c中几种不同方式实现的锁，在这之前我们先构建一个测试用的类，假想它是" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://maplness.github.io/post/oc%E4%B8%AD%E7%9A%84%E9%94%81/" />
+<meta property="article:published_time" content="2020-08-15T13:31:09+08:00" />
+<meta property="article:modified_time" content="2020-08-15T13:31:09+08:00" />
+<meta itemprop="name" content="OC中的锁">
+<meta itemprop="description" content="OC中用不同的方式实现锁 原文链接 http://www.tanhao.me/pieces/616.html/ 今天一起来探讨一下objective-c中几种不同方式实现的锁，在这之前我们先构建一个测试用的类，假想它是">
+<meta itemprop="datePublished" content="2020-08-15T13:31:09&#43;08:00" />
+<meta itemprop="dateModified" content="2020-08-15T13:31:09&#43;08:00" />
+<meta itemprop="wordCount" content="2155">
+
+
+
+<meta itemprop="keywords" content="锁,多线程,OC," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="OC中的锁"/>
+<meta name="twitter:description" content="OC中用不同的方式实现锁 原文链接 http://www.tanhao.me/pieces/616.html/ 今天一起来探讨一下objective-c中几种不同方式实现的锁，在这之前我们先构建一个测试用的类，假想它是"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Scott</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/post/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Scott</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">OC中的锁</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-08-15 </span>
+        <div class="post-category">
+            <a href="/categories/oc/"> OC </a>
+            </div>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title"></h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#1-nslock">1. 使用NSLock实现的锁</a></li>
+        <li><a href="#2-synchronized">2. 使用synchronized关键字构建的锁</a></li>
+        <li><a href="#3-cpthread-mutex-t">3. 使用C语言的pthread_mutex_t实现的锁</a></li>
+        <li><a href="#4-gcd">4. 使用GCD来实现的锁</a></li>
+        <li><a href="#5-nsrecursivelock-">5. NSRecursiveLock 递归锁</a></li>
+        <li><a href="#6-nsconditionlock-">6. NSConditionLock 条件锁</a></li>
+        <li><a href="#7-nsdistributedlock-">7. NSDistributedLock 分布式锁</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h1 id="oc">OC中用不同的方式实现锁</h1>
+<p>原文链接 <a href="http://www.tanhao.me/pieces/616.html/">http://www.tanhao.me/pieces/616.html/</a></p>
+<p>今天一起来探讨一下objective-c中几种不同方式实现的锁，在这之前我们先构建一个测试用的类，假想它是一个我们的共享资源，method1与method2是互斥的。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-objective-c" data-lang="objective-c"><span class="k">@implementation</span> <span class="nc">TestObj</span>
+
+<span class="p">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">method1</span>
+<span class="p">{</span>
+	<span class="n">NSLog</span><span class="p">(</span><span class="s">@&#34;</span><span class="s">%@</span><span class="s">&#34;</span><span class="p">,</span><span class="n">NSStringFromSelector</span><span class="p">(</span><span class="n">_cmd</span><span class="p">)</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">method2</span>
+<span class="p">{</span>
+	<span class="n">NSLog</span><span class="p">(</span><span class="s">@&#34;</span><span class="s">%@</span><span class="s">&#34;</span><span class="p">,</span><span class="n">NSStirngFromSelector</span><span class="p">(</span><span class="n">_cmd</span><span class="p">)</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">@end</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="1-nslock">1. 使用NSLock实现的锁</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-objective-c" data-lang="objective-c"><span class="c1">//主线程中
+</span><span class="c1"></span><span class="n">TestObj</span> <span class="o">*</span><span class="n">obj</span> <span class="o">=</span> <span class="p">[</span><span class="p">[</span><span class="n">TestObj</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">]</span><span class="p">;</span>
+<span class="n">NSLock</span> <span class="o">*</span><span class="n">lock</span> <span class="o">=</span> <span class="p">[</span><span class="p">[</span><span class="n">NSLock</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">]</span><span class="p">;</span>
+
+<span class="c1">//线程1
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">,</span><span class="o">^</span><span class="p">{</span>
+	<span class="p">[</span><span class="n">lock</span> <span class="n">lock</span><span class="p">]</span><span class="p">;</span>
+	<span class="p">[</span><span class="n">obj</span> <span class="n">method1</span><span class="p">]</span><span class="p">;</span>
+	<span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="p">;</span>
+	<span class="p">[</span><span class="n">lock</span> <span class="n">unlock</span><span class="p">]</span><span class="p">;</span>
+<span class="p">}</span><span class="p">)</span><span class="p">;</span>
+
+<span class="c1">//线程2
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+	<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+	<span class="p">[</span><span class="n">lock</span> <span class="n">lock</span><span class="p">]</span><span class="p">;</span>
+	<span class="p">[</span><span class="n">obj</span> <span class="n">method2</span><span class="p">]</span><span class="p">;</span>
+  <span class="p">[</span><span class="n">lock</span> <span class="n">unlock</span><span class="p">]</span><span class="p">;</span>
+<span class="p">}</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>NSLock是Cocoa提供给我们的最基本的锁对象，这也是我们经常使用的。除了lock和unlock方法外，NSLock还提供了tryLock 和 lockBeforeDate方法。前一个方法会尝试加锁，如果锁不可用或已被锁住，不会阻塞线程，并返回NO。locakBeforeDate方法在锁制定Date前尝试加锁，如果在制定时间前都不能加锁，则返回NO。</p>
+<h3 id="2-synchronized">2. 使用synchronized关键字构建的锁</h3>
+<p>当然在Objective-C中还可以用@synchronized指令快速的实现锁：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-objective-c" data-lang="objective-c"><span class="c1">//主线程中
+</span><span class="c1"></span><span class="n">TestObj</span> <span class="o">*</span><span class="n">obj</span> <span class="o">=</span> <span class="p">[</span><span class="p">[</span><span class="n">TestObj</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">]</span><span class="p">;</span>
+<span class="c1">//线程1
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+    <span class="k">@synchronized</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">obj</span> <span class="n">method1</span><span class="p">]</span><span class="p">;</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span><span class="p">)</span><span class="p">;</span>
+<span class="c1">//线程2
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+    <span class="k">@synchronized</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">obj</span> <span class="n">method2</span><span class="p">]</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span><span class="p">)</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>@synchronized 指令使用的obj是该锁的唯一标识，只有当标识相同时，才为满足互斥，如果线程2中的@synchronized（obj）改为@synchronized(other)，线程2就不会被阻塞。</p>
+<h3 id="3-cpthread-mutex-t">3. 使用C语言的pthread_mutex_t实现的锁</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-objective-c" data-lang="objective-c"><span class="c1">//主线程中
+</span><span class="c1"></span><span class="n">TestObj</span> <span class="o">*</span><span class="n">obj</span> <span class="o">=</span> <span class="p">[</span><span class="p">[</span><span class="n">TestObj</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">]</span><span class="p">;</span>
+
+<span class="k">__block</span> <span class="n">pthread_mutex_t</span> <span class="n">mutex</span><span class="p">;</span>
+<span class="n">pthread_mutex_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">,</span><span class="nb">NULL</span><span class="p">)</span><span class="p">;</span>
+
+<span class="c1">//线程1
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+		<span class="n">pthread_mutex_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">)</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">obj</span> <span class="n">method1</span><span class="p">]</span><span class="p">;</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="p">;</span>
+    <span class="n">pthread_mutex_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span><span class="p">)</span>
+
+<span class="c1">//线程2
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+		<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+    <span class="n">pthread_mutex_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">)</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">obj</span> <span class="n">method2</span><span class="p">]</span><span class="p">;</span>
+    <span class="n">pthread_mutex_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>pthread_mutex_t定义在pthread.h，所以记得#include</p>
+<h3 id="4-gcd">4. 使用GCD来实现的锁</h3>
+<p>GCD中提供了一种信号机制，使用它我们也可以来构建“锁”</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-objc" data-lang="objc"><span class="c1">//主线程中
+</span><span class="c1"></span><span class="n">TestObj</span> <span class="o">*</span><span class="n">obj</span> <span class="o">=</span> <span class="p">[</span><span class="p">[</span><span class="n">TestObj</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">]</span><span class="p">;</span>
+<span class="n">dispatch_semaphore_t</span> <span class="n">semaphore</span> <span class="o">=</span> <span class="n">dispatch_semaphore_create</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+
+<span class="c1">//线程1
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+	<span class="n">dispatch_semaphore_wait</span><span class="p">(</span><span class="n">semaphore</span><span class="p">,</span><span class="n">DISPATCH_TIME_FOREVER</span><span class="p">)</span><span class="p">;</span>
+	<span class="p">[</span><span class="n">obj</span> <span class="n">method1</span><span class="p">]</span><span class="p">;</span>
+	<span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="p">;</span>
+	<span class="n">dispatch_semaphore_signal</span><span class="p">(</span><span class="n">semaphore</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span><span class="p">)</span>
+
+<span class="c1">//线程2
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+	<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+  <span class="n">dispatch_semaphore_wait</span><span class="p">(</span><span class="n">semaphore</span><span class="p">,</span><span class="n">DISPATCH_TIME_FOREVER</span><span class="p">)</span><span class="p">;</span>
+  <span class="p">[</span><span class="n">obj</span> <span class="n">method2</span><span class="p">]</span><span class="p">;</span>
+  <span class="n">dispatch_semaphore_signal</span><span class="p">(</span><span class="n">semaphore</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="5-nsrecursivelock-">5. NSRecursiveLock 递归锁</h3>
+<p>平时在代码中使用锁的时候，最容易犯的一个错误就是造成死锁，而最容易造成死锁的一种情形就是在递归或循环中。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-objc" data-lang="objc"><span class="c1">//主线程中
+</span><span class="c1"></span><span class="n">NSLock</span> <span class="o">*</span><span class="n">theLock</span> <span class="o">=</span> <span class="p">[</span><span class="p">[</span><span class="n">NSLock</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">]</span><span class="p">;</span>
+<span class="n">TestObj</span> <span class="o">*</span><span class="n">obj</span> <span class="o">=</span> <span class="p">[</span><span class="p">[</span><span class="n">TestObj</span> <span class="n">alloc</span> <span class="p">]</span> <span class="n">init</span><span class="p">]</span><span class="p">;</span>
+
+<span class="c1">//线程1
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULTY</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+	<span class="k">static</span> <span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="n">TestMethod</span><span class="p">)</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="p">;</span>
+	<span class="n">TestMethod</span> <span class="o">=</span> <span class="o">^</span><span class="p">(</span><span class="kt">int</span> <span class="n">value</span><span class="p">)</span><span class="p">{</span>
+		<span class="p">[</span><span class="n">theLock</span> <span class="n">lock</span><span class="p">]</span><span class="p">;</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="p">{</span>
+			<span class="p">[</span><span class="n">obj</span> <span class="n">method1</span><span class="p">]</span><span class="p">;</span>
+			<span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="p">;</span>
+			<span class="n">TestMethod</span><span class="p">(</span><span class="n">value</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="p">[</span><span class="n">theLock</span> <span class="n">unlock</span><span class="p">]</span><span class="p">;</span>
+	<span class="p">}</span><span class="p">;</span>
+	
+	<span class="n">TestMethod</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span><span class="p">)</span>
+
+<span class="c1">//线程2
+</span><span class="c1"></span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULTY</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+	<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+	<span class="p">[</span><span class="n">theLock</span> <span class="n">lock</span><span class="p">]</span><span class="p">;</span>
+	<span class="p">[</span><span class="n">obj</span> <span class="n">method2</span><span class="p">]</span><span class="p">;</span>
+	<span class="p">[</span><span class="n">theLock</span> <span class="n">unlock</span><span class="p">]</span><span class="p">;</span>
+<span class="p">}</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>以上代码在线程1的递归block中，锁被多次的lock，所以自己也阻塞了，那么如何在递归或循环中正确的使用锁呢，此处的theLock如果换用NSRecursiceLock对象，问题就得到解决了。NSRecursiveLock可以在一个线程中多次lock，而不会造成死锁。递归锁会跟踪它被多少次lock，每次成功的lock都必须平衡调用unlock操作，只有所有的锁住和解锁操作平衡的时候，递归锁才会释放给其他线程获得。</p>
+<h3 id="6-nsconditionlock-">6. NSConditionLock 条件锁</h3>
+<p>当我们在使用多线程的时候，有时一把只会lock和unlock的锁未必能完全满足我们的使用。因为普通的锁只关心锁与不锁，而不在乎用什么钥匙才能开锁，而我们在处理共享资源的时候，多数情况时只有满足一定条件的情况下才能打开这把锁。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">//主线程中
+NSConditionLock *theLock = [[NSConditionLock alloc] init];
+
+//线程1
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULTY,0),^{
+	for(int i =0; i&lt;=2; i++){
+		[theLock lock];
+		NSLog(@&#34;thread1:%d&#34;,i);
+		sleep(2);
+		[theLock unlockWithCondition: i]; 
+	}
+})
+
+//线程2
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULTY,0),^{
+	[theLock lockWhenCondition:2]
+	NSLog(@&#34;thread2&#34;);
+	[theLock unlock];
+})
+</code></pre></td></tr></table>
+</div>
+</div><p>在线程1的加锁使用了lock，所以是不需要条件的，所以顺利的就锁住了，但在unlock的时候使用了一个整型条件，它可以开启其它线程中正在等待这把钥匙的临界地，而线程2则需要一把被标识为2的钥匙，所以当线程1循环到最后一次的时候，才最终打开了线程2中的阻塞。但即便如此，NSConditionLock也跟其它的锁一样，是需要lock与unlock对应的，只是lock,lockWhenCondition:与unlock，unlockWithCondition:是可以随意组合的，当然这是与你的需求相关的。</p>
+<h3 id="7-nsdistributedlock-">7. NSDistributedLock 分布式锁</h3>
+<p>以上的锁都是在解决多线程之间的冲突，但如果遇上多个进程或多个程序之间需要构建互斥的情景怎么办呢？这个时候我们就需要用到NSDistributedLock, 从名字上就可以知道它是一个分布式的锁。NSDistriburedLock 的实现是通过文件系统。所以使用它才1可以有效的实现不同进程间的互斥，但NSDistributedLock并非继承于NSLock，它没有lock方法，只有tryLock , unlock, breakLock.所以如果需要lock的时候，必须自己实现一个trylock的轮询。</p>
+<p>程序A：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    lock = [[NSDistributedLock alloc] initWithPath:@&#34;/Users/mac/Desktop/earning__&#34;];
+    [lock breakLock];
+    [lock tryLock];
+    sleep(10);
+    [lock unlock];
+    NSLog(@&#34;appA: OK&#34;);
+});
+</code></pre></td></tr></table>
+</div>
+</div><p>程序B：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        lock = [[NSDistributedLock alloc] initWithPath:@&#34;/Users/mac/Desktop/earning__&#34;];
+        while (![lock tryLock]) {
+            NSLog(@&#34;appB: waiting&#34;);
+            sleep(1);
+        }
+        [lock unlock];
+        NSLog(@&#34;appB: OK&#34;);
+    });
+</code></pre></td></tr></table>
+</div>
+</div><p>先运行程序A,然后立即运行程序B,根据打印你可以清楚的发现，当程序A刚运行的时候，程序B一直处于等待中，当大概10秒过后，程序B便打印出了appB:OK的输出，以上便实现了两上不同程序之间的互斥。/Users/mac/Desktop/earning__是一个文件或文件夹的地址，如果该文件或文件夹不存在，那么在tryLock返回YES时，会自动创建该文件/文件夹。在结束的时候该文件/文件夹会被清除，所以在选择的该路径的时候，应该选择一个不存在的路径，以防止误删了文件。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title"></span>
+    <span class="item-content">Scott</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title"></span>
+    <span class="item-content">
+        2020-08-15
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/%E9%94%81/">锁</a>
+          <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+          <a href="/tags/oc/">OC</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/about/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">About</span>
+            <span class="prev-text nav-mobile"></span>
+          </a>
+        <a class="next" href="/post/%E5%B8%B8%E7%94%A8%E4%BF%AE%E9%A5%B0%E5%B1%9E%E6%80%A7%E6%80%BB%E7%BB%93/">
+            <span class="next-text nav-default">常用修饰属性总结</span>
+            <span class="next-text nav-mobile"></span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:your@email.com" class="iconfont icon-email" title="email"></a>
+      <a href="http://localhost:1313" class="iconfont icon-stack-overflow" title="stack-overflow"></a>
+      <a href="http://localhost:1313" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="http://localhost:1313" class="iconfont icon-facebook" title="facebook"></a>
+      <a href="http://localhost:1313" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="http://localhost:1313" class="iconfont icon-google" title="google"></a>
+      <a href="http://localhost:1313" class="iconfont icon-github" title="github"></a>
+      <a href="http://localhost:1313" class="iconfont icon-weibo" title="weibo"></a>
+      <a href="http://localhost:1313" class="iconfont icon-zhihu" title="zhihu"></a>
+      <a href="http://localhost:1313" class="iconfont icon-douban" title="douban"></a>
+      <a href="http://localhost:1313" class="iconfont icon-pocket" title="pocket"></a>
+      <a href="http://localhost:1313" class="iconfont icon-tumblr" title="tumblr"></a>
+      <a href="http://localhost:1313" class="iconfont icon-instagram" title="instagram"></a>
+      <a href="http://localhost:1313" class="iconfont icon-gitlab" title="gitlab"></a>
+      <a href="http://localhost:1313" class="iconfont icon-bilibili" title="bilibili"></a>
+  <a href="https://maplness.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    %!(EXTRA string=<a class="hexo-link" href="https://gohugo.io">Hugo</a>)
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+     - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2017 - 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">Scott</span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="/dist/even.26188efa.min.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

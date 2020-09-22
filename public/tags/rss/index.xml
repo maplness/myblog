@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>rss on 随便写写</title>
+    <link>https://maplness.github.io/tags/rss/</link>
+    <description>Recent content in rss on 随便写写</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 30 Aug 2016 16:01:23 +0800</lastBuildDate>
+    
+	<atom:link href="https://maplness.github.io/tags/rss/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Rss</title>
+      <link>https://maplness.github.io/post/2019-09-15-%E6%88%91%E4%B8%AA%E4%BA%BA%E8%AE%A2%E9%98%85%E7%9A%84rss/</link>
+      <pubDate>Tue, 30 Aug 2016 16:01:23 +0800</pubDate>
+      
+      <guid>https://maplness.github.io/post/2019-09-15-%E6%88%91%E4%B8%AA%E4%BA%BA%E8%AE%A2%E9%98%85%E7%9A%84rss/</guid>
+      <description>阮一峰的网络日志： http://feeds.feedburner.com/ruanyifeng 编程随想的博客： http://feeds2.feedburner.com/programthink 可能吧 ： http://feeds.kenengba.com/kenengbarss 就先写这些，多了也看不过来，再发现好的再更新。</description>
+    </item>
+    
+  </channel>
+</rss>
